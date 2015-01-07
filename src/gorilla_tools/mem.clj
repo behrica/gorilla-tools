@@ -3,15 +3,22 @@
             [clojure.pprint :refer [ print-table]]
             ))
 
+(defn short-to-string [value]
+  (let [to-string (.toString value)]
+    (clojure.string/join ["\""
+                          (clojure.string/replace (subs to-string 0 (min 50 (count to-string)))"\n" " ")
+                          "\""])  ))
+
 (defn- format-var [var]
-  (let [value (var-get var)]
+  (let [value (var-get var)
+        bytes (try (taoensso.nippy/freeze value)
+                   (catch Exception e (byte-array 0)))
+        count-or-tostring (try (count value)
+                             (catch Exception e  (short-to-string value)))]
     {:var (.sym var)
      :class (subs (str (class value)) 5)
-     :count (if (or (instance? clojure.lang.IPersistentCollection value) (string? value) ) (count  value)
-       		   (let [to-string (.toString value)]
-                (clojure.string/replace (subs to-string 0 (min 30 (count to-string)))"\n" " ")))
-     :size (if (nippy/freezable? value {:allow-java-serializable? true}) (count (nippy/freeze value)) -1)
-     ;;:size-1 (count (nippy/freeze value))
+     :count-or-tostring count-or-tostring
+     :size (count bytes)
      }))
 
 (defn print-var-info
