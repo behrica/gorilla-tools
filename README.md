@@ -1,6 +1,6 @@
 # gorilla-tools
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure library designed to provide utility functions in order to support data analysis with the Gorilla-repl.
 
 ## Usage
 
