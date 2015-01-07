@@ -1,6 +1,7 @@
 (ns gorilla-tools.mem
   (:require [taoensso.nippy :as nippy]
             [clojure.pprint :refer [ print-table]]
+            [clojure.core.matrix :as m]
             ))
 
 (defn short-to-string [value]
@@ -13,8 +14,10 @@
   (let [value (var-get var)
         bytes (try (taoensso.nippy/freeze value)
                    (catch Exception e (byte-array 0)))
-        count-or-tostring (try (count value)
-                             (catch Exception e  (short-to-string value)))]
+        count-or-tostring (if (m/matrix? value)
+                            (m/shape value)
+                            (try (count value)
+                                 (catch Exception e  (short-to-string value))))]
     {:var (.sym var)
      :class (subs (str (class value)) 5)
      :count-or-tostring count-or-tostring
